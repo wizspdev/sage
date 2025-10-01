@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Sage OAuth Flow (Δύο Βήματα)</title>
+</head>
+<body>
+
+    <h1>Sage OAuth - Βήμα 1: Λήψη Authorization Code</h1>
+    <p>
+        Πατήστε το κουμπί παρακάτω, συνδεθείτε στη Sage και δώστε έγκριση. 
+        Μόλις ανακατευθυνθείτε πίσω, **αντιγράψτε τον κωδικό ('code') από τη διεύθυνση URL**.
+    </p>
+
+    <button onclick="startAuthorization()">
+        Έναρξη Εξουσιοδότησης (Redirect to Sage)
+    </button>
+    
+    <hr>
+
+    <h1>Sage OAuth - Βήμα 2: Ανταλλαγή Token</h1>
+    <label for="authCode">Authorization Code (Επικολλήστε εδώ τον κωδικό από το URL):</label>
+    <input type="text" id="authCode" placeholder="π.χ. GB%2F12abcxxxxxxxxxxxxf7d" style="width: 350px;"><br><br>
+    
+    <button onclick="exchangeCodeForToken()">
+        Λήψη Access Token
+    </button>
+    
+    <pre id="responseOutput" style="margin-top: 20px; text-align: left; background-color: #f4f4f4; padding: 10px; border: 1px solid #ccc;"></pre>
+
+    <script>
+        // *** ΑΠΑΡΑΙΤΗΤΑ ΣΤΟΙΧΕΙΑ - ΠΡΕΠΕΙ ΝΑ ΑΝΤΙΚΑΤΑΣΤΑΘΟΥΝ ***
+        const CLIENT_ID = 'a30eb717-39b7-c062-6e0c-3bfe8dc89fe2/ccfac12f-0aff-4936-b4b4-1b97cc4b5ffc';
+        const CLIENT_SECRET = 'Z-YDZCH=a=8vRSO-=3/<'; // ⚠️ Ασφάλεια: Αποφύγετε να εκθέσετε αυτό το πεδίο
+        const REDIRECT_URI = encodeURIComponent('http://localhost:8080/auth/callback'); // Το URI σας, URL encoded
+        const SCOPE = 'full_access'; // Ή 'readonly'
+        const STATE = 'random_string_' + Date.now(); // Χρησιμοποιήστε μια τυχαία τιμή για ασφάλεια
+
+        const AUTHORIZE_ENDPOINT = 'https://www.sageone.com/oauth2/auth/central';
+        const TOKEN_ENDPOINT = 'https://oauth.accounting.sage.com/token';
+
+		const combinedCredentials = `${CLIENT_ID}:${CLIENT_SECRET}`;
+
+		// In a modern browser environment:
+		const base64Credentials = btoa(combinedCredentials);
+        /**
+         * ΒΗΜΑ 1: Ανακατευθύνει τον χρήστη στον server της Sage για να λάβει τον κωδικό εξουσιοδότησης (code).
+         */
+        function startAuthorization() {
+            const authUrl = `${AUTHORIZE_ENDPOINT}?filter=apiv3.1&response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPE}&state=${STATE}`;
+            window.location.href = authUrl; // Ανακατεύθυνση του χρήστη
+        }
+
+
+        /**
+         * ΒΗΜΑ 2: Ανταλλάσσει τον Authorization Code για το Access Token.
+         */
+
+        async function exchangeCodeForToken() {
+            const authCode = document.getElementById('authCode').value.trim();
+            const outputElement = document.getElementById('responseOutput');
+            outputElement.textContent = '...Αποστολή αιτήματος...';
+
+            if (!authCode) {
+                outputElement.textContent = 'Σφάλμα: Παρακαλώ εισάγετε τον Authorization Code από το URL.';
+                return;
+            }
+
+            // Δημιουργία του σώματος της POST αίτησης (x-www-form-urlencoded)
+            /*const requestBody({
+                client_id: 'a30eb717-39b7-c062-6e0c-3bfe8dc89fe2/ccfac12f-0aff-4936-b4b4-1b97cc4b5ffc',
+                client_secret: "Z-YDZCH=a=8vRSO-=3/<",
+                code: authCode,
+                grant_type: 'authorization_code',
+                // ΣΗΜΕΙΩΣΗ: Χρησιμοποιούμε την URL-decoded τιμή του URI για το request body
+                redirect_uri: decodeURIComponent(REDIRECT_URI) 
+            }); */console.log(decodeURIComponent(REDIRECT_URI) );
+			
+            try {
+                const response = await fetch(TOKEN_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: new URLSearchParams({
+						client_id: 'a30eb717-39b7-c062-6e0c-3bfe8dc89fe2/ccfac12f-0aff-4936-b4b4-1b97cc4b5ffc',
+						client_secret: "Z-YDZCH=a=8vRSO-=3/<",
+						code: authCode,
+						grant_type: 'authorization_code',
+						// ΣΗΜΕΙΩΣΗ: Χρησιμοποιούμε την URL-decoded τιμή του URI για το request body
+						redirect_uri: decodeURIComponent(REDIRECT_URI) 
+					})
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    outputElement.textContent = `Επιτυχία! Access Token Λήφθηκε. \n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    outputElement.textContent = `Σφάλμα Token Exchange: ${response.status} ${response.statusText}\n\n${JSON.stringify(data, null, 2)}`;
+                }
+
+            } catch (error) {
+                outputElement.textContent = `Σφάλμα δικτύου: ${error.message}`;
+            }
+        }
+    </script>
+
+</body>
+</html>
