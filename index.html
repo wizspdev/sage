@@ -35,7 +35,7 @@
         const REDIRECT_URI = encodeURIComponent('https://yellow-plant-0274ecf03.1.azurestaticapps.net/'); // Το URI σας, URL encoded
         const SCOPE = 'full_access'; // Ή 'readonly'
         const STATE = 'random_string_' + Date.now(); // Χρησιμοποιήστε μια τυχαία τιμή για ασφάλεια
-
+		console.log(REDIRECT_URI);
         const AUTHORIZE_ENDPOINT = 'https://www.sageone.com/oauth2/auth/central';
         const TOKEN_ENDPOINT = 'https://oauth.accounting.sage.com/token';
 
@@ -110,4 +110,5 @@
 </body>
 
 </html>
+
 
