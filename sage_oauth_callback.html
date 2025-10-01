@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sage OAuth Callback</title>
+</head>
+<body>
+    <h2>Processing Sage OAuth Response...</h2>
+    <p id="status">Waiting for token exchange...</p>
+
+    <script>
+        // Extract 'code' from query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+
+        // Power Automate Flow URL (replace with your actual flow URL)
+        const flowUrl = "https://2db55f8a48f8e91ab026667e3a53e4.55.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0e67fd67380f4214b2a65bae3ff1ef84/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=vur5jE6VDCioXrv6Av4-yfbdva0Vkh1Km3dol7WYyas"; // TODO: Replace with actual flow URL
+
+        if (code) {
+            document.getElementById("status").textContent = "Sending code to Power Automate...";
+
+            fetch(flowUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("status").textContent = "Access token received!";
+                console.log("Token response:", data);
+            })
+            .catch(error => {
+                document.getElementById("status").textContent = "Error exchanging token.";
+                console.error("Error:", error);
+            });
+        } else {
+            document.getElementById("status").textContent = "No code found in URL.";
+        }
+    </script>
+</body>
+</html>
