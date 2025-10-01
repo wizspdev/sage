@@ -3,6 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Sage OAuth Flow (Δύο Βήματα)</title>
+    <script>
+    window.onload = function() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      if (code) {
+        window.location.href = "/sage_oauth_callback.html?code=" + encodeURIComponent(code);
+      }
+    };
+  </script>
 </head>
 <body>
 
@@ -27,12 +36,19 @@
     </button>
     
     <pre id="responseOutput" style="margin-top: 20px; text-align: left; background-color: #f4f4f4; padding: 10px; border: 1px solid #ccc;"></pre>
-
+    <p>If you are not redirected automatically, #click here</a>.</p>
+    <script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    if (code) {
+      document.getElementById("redirectLink").href = "/sage_oauth_callback.html?code=" + encodeURIComponent(code);
+    }
+  </script>
     <script>
         // *** ΑΠΑΡΑΙΤΗΤΑ ΣΤΟΙΧΕΙΑ - ΠΡΕΠΕΙ ΝΑ ΑΝΤΙΚΑΤΑΣΤΑΘΟΥΝ ***
         const CLIENT_ID = 'a30eb717-39b7-c062-6e0c-3bfe8dc89fe2/7994f2dd-39c9-4b10-9186-4972ed02cfa1';
         const CLIENT_SECRET = 'X(Lhq:$~Q?3H:lrbd?=R'; // ⚠️ Ασφάλεια: Αποφύγετε να εκθέσετε αυτό το πεδίο
-        const REDIRECT_URI = encodeURIComponent('https://yellow-plant-0274ecf03.1.azurestaticapps.net/sage_oauth_callback.html'); // Το URI σας, URL encoded
+        const REDIRECT_URI = encodeURIComponent('https://yellow-plant-0274ecf03.1.azurestaticapps.net'); // Το URI σας, URL encoded
         const SCOPE = 'full_access'; // Ή 'readonly'
         const STATE = 'random_string_' + Date.now(); // Χρησιμοποιήστε μια τυχαία τιμή για ασφάλεια
 		console.log(REDIRECT_URI&"|"&CLIENT_ID&"|"&CLIENT_SECRET);
