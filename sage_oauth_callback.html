@@ -11,9 +11,13 @@
 
     <script>
         // Extract 'code' from query parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-
+        //const urlParams = new URLSearchParams(window.location.search);  
+        const rawQuery = window.location.search;      
+        const match = rawQuery.match(/[?&]code=([^&]+)/);
+        const rawCode = match ? match[1] : null;
+        console.log("Raw encoded code:", rawCode);
+        //const code = urlParams.get('code');
+        const code = rawCode;
         // Power Automate Flow URL (replace with your actual flow URL)
         const flowUrl = "https://2db55f8a48f8e91ab026667e3a53e4.55.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0e67fd67380f4214b2a65bae3ff1ef84/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=vur5jE6VDCioXrv6Av4-yfbdva0Vkh1Km3dol7WYyas"; // TODO: Replace with actual flow URL
 
